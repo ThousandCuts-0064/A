@@ -49,16 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animal.cs" />
-    <Compile Include="RotatableArray.cs" />
+    <Compile Include="Rotatable2DArray.cs" />
     <Compile Include="Square.cs" />
     <Compile Include="Farm.cs" />
     <Compile Include="Cow.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
