@@ -23,7 +23,7 @@ namespace A
             Maximize();
             string input;
             int steps = 0;
-            Farm.AddCow(new Cow("Kon", Sex.Male, 2, 2));
+            Farm.AddCow(new Cow("Move", Sex.Male, 2, 2));
 
             //Farm.DrawField();
             while (true)

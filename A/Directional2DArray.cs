@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 
 namespace A
 {
-    interface IReadOnlyRotatable2DArray<T>
+    interface IReadOnlyDirectional2DArray<T>
     {
         T this[int i, int y] { get; }
+        Direction Direction { get; }
+        bool Flipped { get; }
     }
-    class Rotatable2DArray<T> : IReadOnlyRotatable2DArray<T>
+    class Directional2DArray<T> : IReadOnlyDirectional2DArray<T>
     {
         private T[,] array;
-        public Direction Direction { get; set; }
+        public Direction Direction { get; set; } = Direction.Right;
         public bool Flipped { get; set; }
         public T this[int i, int y]
         {
@@ -24,16 +26,16 @@ namespace A
                     case Direction.Up: return array[i, y];
                     case Direction.Down: return array[i, y];
                     case Direction.Right: return array[i, y];
-                    case Direction.Left: return array[array.Length - i, y];
+                    case Direction.Left: return array[i, array.GetLength(1) - 1 - y];
                     default: throw new Exception();
                 }
             }
             set => array[i, y] = value;
         }
 
-        public Rotatable2DArray(int size)
+        public Directional2DArray(T[,] array)
         {
-            array = new T[size, size];
+            this.array = array;
         }
     }
 }

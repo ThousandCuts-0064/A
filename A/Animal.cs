@@ -55,28 +55,31 @@ namespace A
         //¦ °
         private Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
         private Sex sex;
-        private Direction face = Direction.Right;
-        public bool Rotate { get; protected set; }
-        public bool Flipped { get; protected set; }
-        public abstract IReadOnlyDictionary<bool, IReadOnlyWrapper<ColorChar>> Eyes { get; }
-        public abstract IReadOnlyDictionary<bool, IReadOnlyWrapper<ColorChar>> Mouth { get; }
-        public abstract IReadOnlyDictionary<bool, IReadOnlyWrapper<ColorChar>> FrontLeg { get; }
-        public abstract IReadOnlyDictionary<bool, IReadOnlyWrapper<ColorChar>> BackLeg { get; }
-        public Square Square { get; protected set; }
-        public IReadOnlyRotatable2DArray<IReadOnlyWrapper<ColorChar>> Body { get; protected set; }
-        public Direction Last { get; protected set; }
-        public Direction Face 
+        protected Directional2DArray<IReadOnlyWrapper<ColorChar>> Body { get; }
+        protected Dictionary<bool, Wrapper<ColorChar>> Eyes { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
         {
-            get => face; 
-            protected set
-            {
-                if (face == value) return;
-
-
-                face = value;
-            }
-        }
-        public Sex Sex 
+            { false, new Wrapper<ColorChar>() },
+            { true, new Wrapper<ColorChar>() }
+        };
+        protected Dictionary<bool, Wrapper<ColorChar>> Mouth { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        {
+            { false, new Wrapper<ColorChar>() },
+            { true, new Wrapper<ColorChar>() }
+        };
+        protected Dictionary<bool, Wrapper<ColorChar>> FrontLeg { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        {
+            { false, new Wrapper<ColorChar>() },
+            { true, new Wrapper<ColorChar>() }
+        };
+        protected Dictionary<bool, Wrapper<ColorChar>> BackLeg { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        {
+            { false, new Wrapper<ColorChar>() },
+            { true, new Wrapper<ColorChar>() }
+        };
+        public IReadOnlyDirectional2DArray<IReadOnlyWrapper<ColorChar>> ReadBody => Body;
+        public Square Square { get; }
+        public Direction LastMove { get; protected set; }
+        public Sex Sex
         {
             get => sex;
             protected set
@@ -97,6 +100,16 @@ namespace A
             Sex = sex;
             X = x;
             Y = y;
+
+            Body = new Directional2DArray<IReadOnlyWrapper<ColorChar>>(new IReadOnlyWrapper<ColorChar>[,]
+            {
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[false] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[false] },
+                { BackLeg[false], SexColorChar, FrontLeg[false] }
+            });
+
+            Square = new Square(this);
+            Square.OnMoveEvent += Animate;
         }
 
         public abstract void Think();
@@ -111,59 +124,59 @@ namespace A
                 case Direction.Up:
                     if (X <= 0)
                     {
-                        Last = Direction.None;
+                        LastMove = Direction.None;
                         return MoveError.Blocked;
                     }
 
+                    LastMove = Direction.Up;
+                    Body.Direction = LastMove;
                     Square.Move(dir);
                     X -= 1;
-                    Last = Direction.Up;
-                    Face = Last;
                     return MoveError.None;
 
                 case Direction.Down:
                     if (X >= Farm.N - 1)
                     {
-                        Last = Direction.None;
+                        LastMove = Direction.None;
                         return MoveError.Blocked;
                     }
 
+                    LastMove = Direction.Down;
+                    Body.Direction = LastMove;
                     Square.Move(dir);
                     X += 1;
-                    Last = Direction.Down;
-                    Face = Last;
                     return MoveError.None;
 
 
                 case Direction.Right:
                     if (Y >= Farm.N - 1)
                     {
-                        Last = Direction.None;
+                        LastMove = Direction.None;
                         return MoveError.Blocked;
                     }
 
+                    LastMove = Direction.Right;
+                    Body.Direction = LastMove;
                     Square.Move(dir);
                     Y += 1;
-                    Last = Direction.Right;
-                    Face = Last;
                     return MoveError.None;
 
 
                 case Direction.Left:
                     if (Y <= 0)
                     {
-                        Last = Direction.None;
+                        LastMove = Direction.None;
                         return MoveError.Blocked;
                     }
 
+                    LastMove = Direction.Left;
+                    Body.Direction = LastMove;
                     Square.Move(dir);
                     Y -= 1;
-                    Last = Direction.Left;
-                    Face = Last;
                     return MoveError.Blocked;
 
                 default:
-                    Last = Direction.None;
+                    LastMove = Direction.None;
                     return MoveError.Invalid;
             }
         }

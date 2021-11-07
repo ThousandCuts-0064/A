@@ -37,7 +37,7 @@ namespace A
             for (int i = 0; i < Square.size; i++)
             {
                 for (int y = 0; y < Square.size; y++)
-                    Field[cow.X - 1 + i, cow.Y - 1 + y] = cow.Square.Space[i, y].Value;
+                    Field[cow.X - 1 + i, cow.Y - 1 + y] = cow.ReadBody[i, y].Value;
             }
         }
 
