@@ -106,9 +106,15 @@ namespace A
                 { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[false] },
                 { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[false] },
                 { BackLeg[false], SexColorChar, FrontLeg[false] }
+            },
+            new IReadOnlyWrapper<ColorChar>[,]
+            {
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[true] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[true] },
+                { BackLeg[true], SexColorChar, FrontLeg[true] }
             });
 
-            Square = new Square(this);
+            Square = new Square(this, 3);
             Square.OnMoveEvent += Animate;
         }
 
@@ -122,7 +128,7 @@ namespace A
                 case Direction.None: return MoveError.None;
 
                 case Direction.Up:
-                    if (X <= 0)
+                    if (X <= Square.Fat)
                     {
                         LastMove = Direction.None;
                         return MoveError.Blocked;
@@ -135,7 +141,7 @@ namespace A
                     return MoveError.None;
 
                 case Direction.Down:
-                    if (X >= Farm.N - 1)
+                    if (X >= Farm.N - 1 - Square.Fat)
                     {
                         LastMove = Direction.None;
                         return MoveError.Blocked;
@@ -149,7 +155,7 @@ namespace A
 
 
                 case Direction.Right:
-                    if (Y >= Farm.N - 1)
+                    if (Y >= Farm.N - 1 - Square.Fat)
                     {
                         LastMove = Direction.None;
                         return MoveError.Blocked;
@@ -163,7 +169,7 @@ namespace A
 
 
                 case Direction.Left:
-                    if (Y <= 0)
+                    if (Y <= Square.Fat)
                     {
                         LastMove = Direction.None;
                         return MoveError.Blocked;

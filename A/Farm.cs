@@ -34,9 +34,9 @@ namespace A
             //TODO: Check Size
 
             cows.Add(cow.Name, cow);
-            for (int i = 0; i < Square.size; i++)
+            for (int i = 0; i < cow.Square.Size; i++)
             {
-                for (int y = 0; y < Square.size; y++)
+                for (int y = 0; y < cow.Square.Size; y++)
                     Field[cow.X - 1 + i, cow.Y - 1 + y] = cow.ReadBody[i, y].Value;
             }
         }
