@@ -45,15 +45,19 @@ namespace A
         {
             Console.CursorVisible = false;
             Console.SetCursorPosition(0, 0);
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine('┌' + new string('─', n) + '┐');
             for (int i = 0; i < n; i++)
             {
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("│");
                 for (int y = 0; y < n; y++)
                     Field[i, y].Draw();
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write('│');
                 Console.WriteLine();
             }
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine('└' + new string('─', n) + '┘');
             Console.Write(new string(' ', 100) + "\r");
         }

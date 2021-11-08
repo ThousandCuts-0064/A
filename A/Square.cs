@@ -23,7 +23,6 @@ namespace A
         {
             Console.ForegroundColor = ConsoleColor;
             Console.Write(Char);
-            Console.ResetColor();
         }
     }
 

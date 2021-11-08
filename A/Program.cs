@@ -46,9 +46,14 @@ namespace A
 
                 if (int.TryParse(input, out steps)) continue;
 
-                string[] comand = input.Split(' ');
-                comand[0] = char.ToUpper(comand[0][0]) + comand[0].Substring(1);
-                if (Farm.TryGetCow(comand[0], out Cow tryCow) && tryCow.TryMove(comand[1]) != MoveError.Invalid) continue;
+                string[] comand = input.Split(' ').Select(str => str = char.ToUpper(str[0]) + str.Substring(1)).ToArray();
+                if (!Farm.TryGetCow(comand[0], out Cow tryCow)) continue;
+                if (comand[1] == "Flip")
+                {
+                    tryCow.Flip();
+                    continue;
+                }
+                if (tryCow.TryMove(comand[1]) != MoveError.Invalid) continue;
             }
 
             //Console.ReadLine();

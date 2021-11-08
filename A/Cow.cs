@@ -10,33 +10,57 @@ namespace A
     {
         private int legIndex = 1;
         private int legReadDir = 1;
-        private readonly ColorChar eyes0 = new ColorChar(ConsoleColor.Yellow, '"');
-        private readonly ColorChar eyes1 = new ColorChar(ConsoleColor.Yellow, '=');
-        private readonly ColorChar mouth0 = new ColorChar(ConsoleColor.Yellow, 'v');
-        private readonly ColorChar mouth1 = new ColorChar(ConsoleColor.Yellow, '<');
-        private readonly ColorChar[] frontLegs0 = new ColorChar[] 
+        private readonly Dictionary<Direction, ColorChar> eyes = new Dictionary<Direction, ColorChar>()
         {
-            new ColorChar(ConsoleColor.DarkYellow, '/'),
-            new ColorChar(ConsoleColor.DarkYellow, '│'),
-            new ColorChar(ConsoleColor.DarkYellow, '\\')
+            { Direction.Up, new ColorChar(ConsoleColor.Yellow, '"') },
+            { Direction.Down, new ColorChar(ConsoleColor.Yellow, '"') },
+            { Direction.Right, new ColorChar(ConsoleColor.Yellow, '=') },
+            { Direction.Left, new ColorChar(ConsoleColor.Yellow, '=') },
         };
-        private readonly ColorChar[] backLegs0 = new ColorChar[]
+        private readonly Dictionary<Direction, ColorChar> mouth = new Dictionary<Direction, ColorChar>()
         {
-            new ColorChar(ConsoleColor.DarkYellow, '\\'),
-            new ColorChar(ConsoleColor.DarkYellow, '│'),
-            new ColorChar(ConsoleColor.DarkYellow, '/')
+            { Direction.Up, new ColorChar(ConsoleColor.Yellow, 'v') },
+            { Direction.Down, new ColorChar(ConsoleColor.Yellow, '^') },
+            { Direction.Right, new ColorChar(ConsoleColor.Yellow, '<') },
+            { Direction.Left, new ColorChar(ConsoleColor.Yellow, '>') },
         };
-        private readonly ColorChar[] frontLegs1 = new ColorChar[]
+        private readonly Dictionary<Direction, ColorChar[]> frontLegs = new Dictionary<Direction, ColorChar[]>()
         {
-            new ColorChar(ConsoleColor.DarkYellow, '\\'),
-            new ColorChar(ConsoleColor.DarkYellow, '─'),
-            new ColorChar(ConsoleColor.DarkYellow, '/')
+            { Direction.Up, new ColorChar[]{
+                new ColorChar(ConsoleColor.DarkYellow, '/'),
+                new ColorChar(ConsoleColor.DarkYellow, '│'),
+                new ColorChar(ConsoleColor.DarkYellow, '\\') } },
+            { Direction.Down, new ColorChar[]{
+                new ColorChar(ConsoleColor.DarkYellow, '\\'),
+                new ColorChar(ConsoleColor.DarkYellow, '│'),
+                new ColorChar(ConsoleColor.DarkYellow, '/') } },
+            { Direction.Right, new ColorChar[]{
+                new ColorChar(ConsoleColor.DarkYellow, '\\'),
+                new ColorChar(ConsoleColor.DarkYellow, '─'),
+                new ColorChar(ConsoleColor.DarkYellow, '/') } },
+            { Direction.Left, new ColorChar[]{
+                new ColorChar(ConsoleColor.DarkYellow, '/'),
+                new ColorChar(ConsoleColor.DarkYellow, '─'),
+                new ColorChar(ConsoleColor.DarkYellow, '\\') } },
         };
-        private readonly ColorChar[] backLegs1 = new ColorChar[]
+        private readonly Dictionary<Direction, ColorChar[]> backLegs = new Dictionary<Direction, ColorChar[]>()
         {
-            new ColorChar(ConsoleColor.DarkYellow, '/'),
-            new ColorChar(ConsoleColor.DarkYellow, '─'),
-            new ColorChar(ConsoleColor.DarkYellow, '\\')
+            { Direction.Up, new ColorChar[] {
+                new ColorChar(ConsoleColor.DarkYellow, '\\'),
+                new ColorChar(ConsoleColor.DarkYellow, '│'),
+                new ColorChar(ConsoleColor.DarkYellow, '/') } },
+            { Direction.Down, new ColorChar[] {
+                new ColorChar(ConsoleColor.DarkYellow, '/'),
+                new ColorChar(ConsoleColor.DarkYellow, '│'),
+                new ColorChar(ConsoleColor.DarkYellow, '\\') } },
+            { Direction.Right, new ColorChar[] {
+                new ColorChar(ConsoleColor.DarkYellow, '/'),
+                new ColorChar(ConsoleColor.DarkYellow, '─'),
+                new ColorChar(ConsoleColor.DarkYellow, '\\') } },
+            { Direction.Left, new ColorChar[] {
+                new ColorChar(ConsoleColor.DarkYellow, '\\'),
+                new ColorChar(ConsoleColor.DarkYellow, '─'),
+                new ColorChar(ConsoleColor.DarkYellow, '/') } },
         };
         public float Milk { get; }
 
@@ -44,24 +68,26 @@ namespace A
         {
             Milk = milk;
 
-            Eyes[false].Value = eyes0;
-            Eyes[true].Value = eyes1;
-            Mouth[false].Value = mouth0;
-            Mouth[true].Value = mouth1;
-            FrontLeg[false].Value = frontLegs0[1];
-            FrontLeg[true].Value = frontLegs1[1];
-            BackLeg[false].Value = backLegs0[1];
-            BackLeg[true].Value = backLegs1[1];
+            foreach (Direction dir in Enum.GetValues(typeof(Direction)))
+            {
+                if (dir == Direction.None) continue;
+                Eyes[dir].Value = eyes[dir];
+                Mouth[dir].Value = mouth[dir];
+                FrontLeg[dir].Value = frontLegs[dir][1];
+                BackLeg[dir].Value = backLegs[dir][1];
+            }
         }
 
         public override void Animate()
         {
-            if (legIndex == 0 || legIndex == frontLegs0.Length - 1) legReadDir *= -1;
+            if (legIndex == 0 || legIndex == frontLegs[Direction.Up].Length - 1) legReadDir *= -1;
             legIndex += legReadDir;
-            FrontLeg[false].Value = frontLegs0[legIndex];
-            FrontLeg[true].Value = frontLegs1[legIndex];
-            BackLeg[false].Value = backLegs0[legIndex];
-            BackLeg[true].Value = backLegs1[legIndex];
+            foreach (Direction dir in Enum.GetValues(typeof(Direction)))
+            {
+                if (dir == Direction.None) continue;
+                FrontLeg[dir].Value = frontLegs[dir][legIndex];
+                BackLeg[dir].Value = backLegs[dir][legIndex];
+            }
         }
 
         public override void Think()

@@ -56,25 +56,33 @@ namespace A
         private Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
         private Sex sex;
         protected Directional2DArray<IReadOnlyWrapper<ColorChar>> Body { get; }
-        protected Dictionary<bool, Wrapper<ColorChar>> Eyes { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> Eyes { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
-            { false, new Wrapper<ColorChar>() },
-            { true, new Wrapper<ColorChar>() }
+            { Direction.Up, new Wrapper<ColorChar>() },
+            { Direction.Down, new Wrapper<ColorChar>() },
+            { Direction.Right, new Wrapper<ColorChar>() },
+            { Direction.Left, new Wrapper<ColorChar>() },
         };
-        protected Dictionary<bool, Wrapper<ColorChar>> Mouth { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> Mouth { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
-            { false, new Wrapper<ColorChar>() },
-            { true, new Wrapper<ColorChar>() }
+            { Direction.Up, new Wrapper<ColorChar>() },
+            { Direction.Down, new Wrapper<ColorChar>() },
+            { Direction.Right, new Wrapper<ColorChar>() },
+            { Direction.Left, new Wrapper<ColorChar>() },
         };
-        protected Dictionary<bool, Wrapper<ColorChar>> FrontLeg { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> FrontLeg = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
-            { false, new Wrapper<ColorChar>() },
-            { true, new Wrapper<ColorChar>() }
+            { Direction.Up, new Wrapper<ColorChar>() },
+            { Direction.Down, new Wrapper<ColorChar>() },
+            { Direction.Right, new Wrapper<ColorChar>() },
+            { Direction.Left, new Wrapper<ColorChar>() },
         };
-        protected Dictionary<bool, Wrapper<ColorChar>> BackLeg { get; } = new Dictionary<bool, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> BackLeg = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
-            { false, new Wrapper<ColorChar>() },
-            { true, new Wrapper<ColorChar>() }
+            { Direction.Up, new Wrapper<ColorChar>() },
+            { Direction.Down, new Wrapper<ColorChar>() },
+            { Direction.Right, new Wrapper<ColorChar>() },
+            { Direction.Left, new Wrapper<ColorChar>() },
         };
         public IReadOnlyDirectional2DArray<IReadOnlyWrapper<ColorChar>> ReadBody => Body;
         public Square Square { get; }
@@ -103,15 +111,27 @@ namespace A
 
             Body = new Directional2DArray<IReadOnlyWrapper<ColorChar>>(new IReadOnlyWrapper<ColorChar>[,]
             {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[false] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[false] },
-                { BackLeg[false], SexColorChar, FrontLeg[false] }
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Up] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Up] },
+                { BackLeg[Direction.Up], SexColorChar, FrontLeg[Direction.Up] }
             },
             new IReadOnlyWrapper<ColorChar>[,]
             {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[true] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[true] },
-                { BackLeg[true], SexColorChar, FrontLeg[true] }
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Down] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Down] },
+                { BackLeg[Direction.Down], SexColorChar, FrontLeg[Direction.Down] }
+            },
+            new IReadOnlyWrapper<ColorChar>[,]
+            {
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Right] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Right] },
+                { BackLeg[Direction.Right], SexColorChar, FrontLeg[Direction.Right] }
+            },
+            new IReadOnlyWrapper<ColorChar>[,]
+            {
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Left] },
+                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Left] },
+                { BackLeg[Direction.Left], SexColorChar, FrontLeg[Direction.Left] }
             });
 
             Square = new Square(this, 3);
@@ -120,6 +140,8 @@ namespace A
 
         public abstract void Think();
         public abstract void Animate();
+
+        public void Flip() => Body.Flipped = !Body.Flipped;
 
         public MoveError TryMove(Direction dir)
         {
@@ -189,7 +211,6 @@ namespace A
 
         public MoveError TryMove(string dir)
         {
-            dir = char.ToUpper(dir[0]) + dir.Substring(1);
             if (!Enum.TryParse(dir, out Direction direction)) return MoveError.Invalid;
 
             return TryMove(direction);
