@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Animal.cs" />
     <Compile Include="Directional2DArray.cs" />
-    <Compile Include="Square.cs" />
+    <Compile Include="HitBox.cs" />
     <Compile Include="Farm.cs" />
     <Compile Include="Cow.cs" />
     <Compile Include="Program.cs" />

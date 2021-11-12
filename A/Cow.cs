@@ -64,9 +64,9 @@ namespace A
         };
         public float Milk { get; }
 
-        public Cow(string name, Sex sex, int x, int y, float milk = 0) : base(name, sex, x, y)
+        public Cow(string name, Sex sex, int x, int y) : base(name, sex, x, y)
         {
-            Milk = milk;
+            Milk = 0;
 
             foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
@@ -76,6 +76,11 @@ namespace A
                 FrontLeg[dir].Value = frontLegs[dir][1];
                 BackLeg[dir].Value = backLegs[dir][1];
             }
+        }
+
+        public Cow(string name, Sex sex, int x, int y, float milk) : this(name, sex, x, y)
+        {
+            Milk = milk;
         }
 
         public override void Animate()
@@ -92,7 +97,7 @@ namespace A
 
         public override void Think()
         {
-            Direction curr = LastMove;
+            Direction curr = HitBox.LastMove;
             int rnd = new Random().Next(101);
             int dirRnd;
             if (rnd < 5) dirRnd = 0;
@@ -100,7 +105,7 @@ namespace A
             else if (rnd < 25) dirRnd = 2;
             else dirRnd = 3;
 
-            switch (LastMove)
+            switch (HitBox.LastMove)
             {
                 case Direction.None:
                     if (rnd < 25) curr = Direction.Up;
@@ -146,7 +151,7 @@ namespace A
                     break;
             }
 
-            TryMove(curr);
+            HitBox.TryMove(curr);
         }
     }
 }

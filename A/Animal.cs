@@ -53,7 +53,7 @@ namespace A
     abstract class Animal
     {
         //¦ °
-        private Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
+        private readonly Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
         private Sex sex;
         protected Directional2DArray<IReadOnlyWrapper<ColorChar>> Body { get; }
         protected Dictionary<Direction, Wrapper<ColorChar>> Eyes { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
@@ -70,14 +70,14 @@ namespace A
             { Direction.Right, new Wrapper<ColorChar>() },
             { Direction.Left, new Wrapper<ColorChar>() },
         };
-        protected Dictionary<Direction, Wrapper<ColorChar>> FrontLeg = new Dictionary<Direction, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> FrontLeg { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
             { Direction.Up, new Wrapper<ColorChar>() },
             { Direction.Down, new Wrapper<ColorChar>() },
             { Direction.Right, new Wrapper<ColorChar>() },
             { Direction.Left, new Wrapper<ColorChar>() },
         };
-        protected Dictionary<Direction, Wrapper<ColorChar>> BackLeg = new Dictionary<Direction, Wrapper<ColorChar>>()
+        protected Dictionary<Direction, Wrapper<ColorChar>> BackLeg { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
         {
             { Direction.Up, new Wrapper<ColorChar>() },
             { Direction.Down, new Wrapper<ColorChar>() },
@@ -85,8 +85,7 @@ namespace A
             { Direction.Left, new Wrapper<ColorChar>() },
         };
         public IReadOnlyDirectional2DArray<IReadOnlyWrapper<ColorChar>> ReadBody => Body;
-        public Square Square { get; }
-        public Direction LastMove { get; protected set; }
+        public HitBox HitBox { get; }
         public Sex Sex
         {
             get => sex;
@@ -98,122 +97,39 @@ namespace A
         }
         public IReadOnlyWrapper<ColorChar> SexColorChar => sexColorChar;
         public string Name { get; }
-        public int X { get; private set; }
-        public int Y { get; private set; }
-
+        
 
         public Animal(string name, Sex sex, int x, int y)
         {
             Name = name;
             Sex = sex;
-            X = x;
-            Y = y;
 
-            Body = new Directional2DArray<IReadOnlyWrapper<ColorChar>>(new IReadOnlyWrapper<ColorChar>[,]
+            Dictionary<Direction, IReadOnlyWrapper<ColorChar>[,]> directions = new Dictionary<Direction, IReadOnlyWrapper<ColorChar>[,]>();
+            foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Up] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Up] },
-                { BackLeg[Direction.Up], SexColorChar, FrontLeg[Direction.Up] }
-            },
-            new IReadOnlyWrapper<ColorChar>[,]
-            {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Down] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Down] },
-                { BackLeg[Direction.Down], SexColorChar, FrontLeg[Direction.Down] }
-            },
-            new IReadOnlyWrapper<ColorChar>[,]
-            {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Right] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Right] },
-                { BackLeg[Direction.Right], SexColorChar, FrontLeg[Direction.Right] }
-            },
-            new IReadOnlyWrapper<ColorChar>[,]
-            {
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[Direction.Left] },
-                { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[Direction.Left] },
-                { BackLeg[Direction.Left], SexColorChar, FrontLeg[Direction.Left] }
-            });
+                if (dir == Direction.None) continue;
+                directions[dir] = new IReadOnlyWrapper<ColorChar>[,]
+                {
+                    { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[dir] },
+                    { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[dir] },
+                    { BackLeg[dir], SexColorChar, FrontLeg[dir] }
+                };
+            }
+            Body = new Directional2DArray<IReadOnlyWrapper<ColorChar>>(directions[Direction.Up], directions[Direction.Down], directions[Direction.Right], directions[Direction.Left]);
 
-            Square = new Square(this, 3);
-            Square.OnMoveEvent += Animate;
+            HitBox = new HitBox(this, 3, x, y);
+            HitBox.OnMoveEvent += Animate;
         }
 
         public abstract void Think();
         public abstract void Animate();
 
-        public void Flip() => Body.Flipped = !Body.Flipped;
-
-        public MoveError TryMove(Direction dir)
+        public void Flip()
         {
-            switch (dir)
-            {
-                case Direction.None: return MoveError.None;
-
-                case Direction.Up:
-                    if (X <= Square.Fat)
-                    {
-                        LastMove = Direction.None;
-                        return MoveError.Blocked;
-                    }
-
-                    LastMove = Direction.Up;
-                    Body.Direction = LastMove;
-                    Square.Move(dir);
-                    X -= 1;
-                    return MoveError.None;
-
-                case Direction.Down:
-                    if (X >= Farm.N - 1 - Square.Fat)
-                    {
-                        LastMove = Direction.None;
-                        return MoveError.Blocked;
-                    }
-
-                    LastMove = Direction.Down;
-                    Body.Direction = LastMove;
-                    Square.Move(dir);
-                    X += 1;
-                    return MoveError.None;
-
-
-                case Direction.Right:
-                    if (Y >= Farm.N - 1 - Square.Fat)
-                    {
-                        LastMove = Direction.None;
-                        return MoveError.Blocked;
-                    }
-
-                    LastMove = Direction.Right;
-                    Body.Direction = LastMove;
-                    Square.Move(dir);
-                    Y += 1;
-                    return MoveError.None;
-
-
-                case Direction.Left:
-                    if (Y <= Square.Fat)
-                    {
-                        LastMove = Direction.None;
-                        return MoveError.Blocked;
-                    }
-
-                    LastMove = Direction.Left;
-                    Body.Direction = LastMove;
-                    Square.Move(dir);
-                    Y -= 1;
-                    return MoveError.Blocked;
-
-                default:
-                    LastMove = Direction.None;
-                    return MoveError.Invalid;
-            }
+            Body.Flipped = !Body.Flipped;
+            HitBox.Update();
         }
 
-        public MoveError TryMove(string dir)
-        {
-            if (!Enum.TryParse(dir, out Direction direction)) return MoveError.Invalid;
-
-            return TryMove(direction);
-        }
+        public void SetDirection(Direction dir) => Body.Direction = dir;
     }
 }

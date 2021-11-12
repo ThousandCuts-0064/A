@@ -6,39 +6,68 @@ using System.Threading.Tasks;
 
 namespace A
 {
+    public enum AddAnimalError
+    {
+        None,
+        NameTaken,
+        NoSpace,
+    }
+
     static class Farm
     {
-        private static int n;
-        private static readonly Dictionary<string, Cow> cows = new Dictionary<string, Cow>();
-        public static ColorChar[,] Field { get; private set; }
-        public static int N
+        public static class Physics
         {
-            get => n;
+            public static HitBox[,] Squares { get; private set; }
+
+            public static void Resize() => Squares = new HitBox[size, size];
+
+            public static bool FreeSpace(HitBox square, int x, int y)
+            {
+                for (int i = 0; i < square.Fat; i++)
+                    for (int j = 0; j < square.Fat; j++)
+                        if (Squares[x + square.Fat - i, y + square.Fat - j] != null) 
+                            return false;
+                return true;
+            }
+        }
+
+        private static int size;
+        private static readonly Dictionary<string, Animal> animals = new Dictionary<string, Animal>();
+
+        public static ColorChar[,] Field { get; private set; }
+        public static int Size
+        {
+            get => size;
             set
             {
-                n = value;
+                size = value;
                 Field = new ColorChar[value, value];
+                Physics.Resize();
                 EmptyField(value);
             }
         }
         public static ColorChar Empty { get; set; } = new ColorChar(ConsoleColor.DarkGreen, '#');
 
-        static Farm() => N = 25;
+        static Farm() => Size = 25;
 
-        public static Cow GetCow(string name) => cows[name];
-        public static bool TryGetCow(string name, out Cow cow) => cows.TryGetValue(name, out cow);
-        public static Dictionary<string, Cow>.ValueCollection GetCows() => cows.Values;
+        public static Animal GetAnimal(string name) => animals[name];
+        public static bool TryGetAnimal(string name, out Animal animal) => animals.TryGetValue(name, out animal);
+        public static Dictionary<string, Animal>.ValueCollection GetAnimals() => animals.Values;
 
-        public static void AddCow(Cow cow)
+        public static AddAnimalError TryAddAnimal(Animal animal)
         {
-            //TODO: Check Size
+            if (animals.ContainsKey(animal.Name)) return AddAnimalError.NameTaken;
+            if (animal.HitBox.X - animal.HitBox.Fat < 0 ||
+                animal.HitBox.Y - animal.HitBox.Fat < 0 ||
+                animal.HitBox.X + animal.HitBox.Fat > size - 1 ||
+                animal.HitBox.Y + animal.HitBox.Fat > size - 1)
+                return AddAnimalError.NoSpace;
 
-            cows.Add(cow.Name, cow);
-            for (int i = 0; i < cow.Square.Size; i++)
-            {
-                for (int y = 0; y < cow.Square.Size; y++)
-                    Field[cow.X - 1 + i, cow.Y - 1 + y] = cow.ReadBody[i, y].Value;
-            }
+            animals.Add(animal.Name, animal);
+            for (int i = 0; i < animal.HitBox.Size; i++)
+                for (int y = 0; y < animal.HitBox.Size; y++)
+                    Field[animal.HitBox.X - 1 + i, animal.HitBox.Y - 1 + y] = animal.ReadBody[i, y].Value;
+            return AddAnimalError.None;
         }
 
         public static void DrawField()
@@ -46,20 +75,25 @@ namespace A
             Console.CursorVisible = false;
             Console.SetCursorPosition(0, 0);
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine('┌' + new string('─', n) + '┐');
-            for (int i = 0; i < n; i++)
+            Console.WriteLine('┌' + new string('─', size) + '┐');
+            for (int i = 0; i < size; i++)
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("│");
-                for (int y = 0; y < n; y++)
+                for (int y = 0; y < size; y++)
                     Field[i, y].Draw();
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write('│');
                 Console.WriteLine();
             }
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine('└' + new string('─', n) + '┘');
-            Console.Write(new string(' ', 100) + "\r");
+            Console.WriteLine('└' + new string('─', size) + '┘');
+            Console.WriteLine(new string(' ', 100) + "\rSelect: " + (Program.Select?.Name ?? "None"));
+            Console.WriteLine(new string(' ', 100) + "\rMode:   " + Program.InputMode);
+            Console.WriteLine(new string(' ', 100) + "\r");
+            Console.WriteLine(new string(' ', 100) + "\r");
+            Console.CursorTop -= 1;
+            Console.CursorVisible = true;
         }
 
         private static void EmptyField(int n)
