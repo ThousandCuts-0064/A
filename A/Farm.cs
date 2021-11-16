@@ -15,22 +15,6 @@ namespace A
 
     static class Farm
     {
-        public static class Physics
-        {
-            public static HitBox[,] Squares { get; private set; }
-
-            public static void Resize() => Squares = new HitBox[size, size];
-
-            public static bool FreeSpace(HitBox square, int x, int y)
-            {
-                for (int i = 0; i < square.Fat; i++)
-                    for (int j = 0; j < square.Fat; j++)
-                        if (Squares[x + square.Fat - i, y + square.Fat - j] != null) 
-                            return false;
-                return true;
-            }
-        }
-
         private static int size;
         private static readonly Dictionary<string, Animal> animals = new Dictionary<string, Animal>();
 
@@ -42,7 +26,6 @@ namespace A
             {
                 size = value;
                 Field = new ColorChar[value, value];
-                Physics.Resize();
                 EmptyField(value);
             }
         }

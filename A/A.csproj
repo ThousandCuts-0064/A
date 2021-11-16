@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animal.cs" />
+    <Compile Include="FarmObject.cs" />
+    <Compile Include="Square.cs" />
     <Compile Include="Directional2DArray.cs" />
     <Compile Include="HitBox.cs" />
     <Compile Include="Farm.cs" />

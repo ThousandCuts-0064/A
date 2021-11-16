@@ -33,7 +33,7 @@ namespace A
             Maximize();
             string input;
             int steps = 0;
-            Farm.TryAddAnimal(new Cow("Bob", Sex.Female, 2, 2));
+            Farm.TryAddAnimal(new Cow("Tedi", Sex.Female, 2, 2));
 
             //Farm.DrawField();
             while (true)
@@ -69,10 +69,15 @@ namespace A
                             Type type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name == comand[1]);
                             if (type == null || !typeof(Animal).IsAssignableFrom(type)) continue;
 
-                            Farm.TryAddAnimal((Animal)Activator.CreateInstance(type, comand[2], sex, x, y));                        }
+                            Farm.TryAddAnimal((Animal)Activator.CreateInstance(type, comand[2], sex, x, y));
+                        }
                         else if (comand[0] == "Select")
                         {
-                            if (Farm.TryGetAnimal(comand[1], out Animal select)) Select = select;
+                            if (Farm.TryGetAnimal(comand[1], out Animal select))
+                            {
+                                Select = select;
+                                InputMode = InputMode.Arcade;
+                            }
                             else Select = null;
                         }
                         else if (Select != null)

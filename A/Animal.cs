@@ -50,7 +50,7 @@ namespace A
         Invalid,
     }
 
-    abstract class Animal
+    abstract class Animal : FarmObject
     {
         //¦ °
         private readonly Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
