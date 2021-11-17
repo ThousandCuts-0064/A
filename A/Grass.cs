@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace A
 {
-    abstract class FarmObject
+    class Grass : Environment
     {
-        public abstract HitBox HitBox { get; }
-
-        public FarmObject(int x, int y)
+        public bool Mature { get; }
+        public Grass(int x, int y) : base(x, y)
         {
-            
+
         }
     }
 }

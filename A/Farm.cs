@@ -18,18 +18,18 @@ namespace A
         private static int size;
         private static readonly Dictionary<string, Animal> animals = new Dictionary<string, Animal>();
 
-        public static ColorChar[,] Field { get; private set; }
+        public static IReadOnlySquare[,] Field { get; private set; }
         public static int Size
         {
             get => size;
             set
             {
                 size = value;
-                Field = new ColorChar[value, value];
+                Field = new IReadOnlySquare[value, value];
                 EmptyField(value);
             }
         }
-        public static ColorChar Empty { get; set; } = new ColorChar(ConsoleColor.DarkGreen, '#');
+        public static IReadOnlySquare Empty { get; set; } = new Square(null, new ColorChar(ConsoleColor.DarkGreen, '#'));
 
         static Farm() => Size = 25;
 
@@ -49,7 +49,7 @@ namespace A
             animals.Add(animal.Name, animal);
             for (int i = 0; i < animal.HitBox.Size; i++)
                 for (int y = 0; y < animal.HitBox.Size; y++)
-                    Field[animal.HitBox.X - 1 + i, animal.HitBox.Y - 1 + y] = animal.ReadBody[i, y].Value;
+                    Field[animal.HitBox.X - 1 + i, animal.HitBox.Y - 1 + y] = animal.ReadBody[i, y];
             return AddAnimalError.None;
         }
 
@@ -61,21 +61,18 @@ namespace A
             Console.WriteLine('┌' + new string('─', size) + '┐');
             for (int i = 0; i < size; i++)
             {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("│");
+                new ColorChar(ConsoleColor.White, '│').Draw();
                 for (int y = 0; y < size; y++)
-                    Field[i, y].Draw();
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write('│');
+                    Field[i, y].ColorChar.Draw();
+                new ColorChar(ConsoleColor.White, '│').Draw();
                 Console.WriteLine();
             }
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine('└' + new string('─', size) + '┘');
             Console.WriteLine(new string(' ', 100) + "\rSelect: " + (Program.Select?.Name ?? "None"));
             Console.WriteLine(new string(' ', 100) + "\rMode:   " + Program.InputMode);
-            Console.WriteLine(new string(' ', 100) + "\r");
-            Console.WriteLine(new string(' ', 100) + "\r");
-            Console.CursorTop -= 1;
+            Console.WriteLine();
+            Console.Write(new string(' ', 100) + "\r");
             Console.CursorVisible = true;
         }
 

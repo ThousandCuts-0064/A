@@ -23,14 +23,14 @@ namespace A
     {
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
-        private static void Maximize() => ShowWindow(Process.GetCurrentProcess().MainWindowHandle, 3);
 
         public static Animal Select { get; set; } = null;
         public static InputMode InputMode { get; set; }
 
+        static Program() => ShowWindow(Process.GetCurrentProcess().MainWindowHandle, 3);
+
         static void Main()
         {
-            Maximize();
             string input;
             int steps = 0;
             Farm.TryAddAnimal(new Cow("Tedi", Sex.Female, 2, 2));
@@ -40,7 +40,7 @@ namespace A
             {
                 while (steps > 0)
                 {
-                    foreach (Cow animal in Farm.GetAnimals()) animal.Think();
+                    foreach (Animal animal in Farm.GetAnimals()) animal.Think();
                     steps--;
                     if (steps > 0)
                     {
@@ -122,6 +122,7 @@ namespace A
 
                             case ConsoleKey.Escape:
                                 InputMode = InputMode.Standard;
+                                Select = null;
                                 break;
 
                             default:
@@ -137,15 +138,5 @@ namespace A
 
             //Console.ReadLine();
         }
-    }
-
-    public interface IReadOnlyWrapper<T>
-    {
-        T Value { get; }
-    }
-
-    public class Wrapper<T> : IReadOnlyWrapper<T> where T : struct
-    {
-        public T Value { get; set; }
     }
 }

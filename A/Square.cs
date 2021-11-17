@@ -8,22 +8,28 @@ namespace A
 {
     public struct ColorChar
     {
-        public ConsoleColor ConsoleColor { get; }
+        public ConsoleColor Color { get; }
         public char Char { get; }
 
         public ColorChar(ConsoleColor consoleColor, char @char)
         {
-            ConsoleColor = consoleColor;
+            Color = consoleColor;
             Char = @char;
         }
 
         public ColorChar WithColor(ConsoleColor consoleColor) => new ColorChar(consoleColor, Char);
-        public ColorChar WithChar(char @char) => new ColorChar(ConsoleColor, @char);
+        public ColorChar WithChar(char @char) => new ColorChar(Color, @char);
         public void Draw()
         {
-            Console.ForegroundColor = ConsoleColor;
+            Console.ForegroundColor = Color;
             Console.Write(Char);
         }
+
+        public override bool Equals(object obj) => base.Equals(obj);
+        public override int GetHashCode() => base.GetHashCode();
+
+        public static bool operator ==(ColorChar l, ColorChar r) => l.Color == r.Color && l.Char == r.Char;
+        public static bool operator !=(ColorChar l, ColorChar r) => l.Color != r.Color || l.Char != r.Char;
     }
 
     interface IReadOnlySquare
@@ -37,9 +43,9 @@ namespace A
         public ColorChar ColorChar { get; set; }
         public FarmObject FarmObject { get; }
 
-        public Square(Animal animal, ColorChar colorChar)
+        public Square(FarmObject owner, ColorChar colorChar)
         {
-            FarmObject = animal;
+            FarmObject = owner;
             ColorChar = colorChar;
         }
     }

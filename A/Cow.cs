@@ -71,10 +71,10 @@ namespace A
             foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
                 if (dir == Direction.None) continue;
-                Eyes[dir].Value = eyes[dir];
-                Mouth[dir].Value = mouth[dir];
-                FrontLeg[dir].Value = frontLegs[dir][1];
-                BackLeg[dir].Value = backLegs[dir][1];
+                Eyes[dir].ColorChar = eyes[dir];
+                Mouth[dir].ColorChar = mouth[dir];
+                FrontLeg[dir].ColorChar = frontLegs[dir][1];
+                BackLeg[dir].ColorChar = backLegs[dir][1];
             }
         }
 
@@ -90,14 +90,14 @@ namespace A
             foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
                 if (dir == Direction.None) continue;
-                FrontLeg[dir].Value = frontLegs[dir][legIndex];
-                BackLeg[dir].Value = backLegs[dir][legIndex];
+                FrontLeg[dir].ColorChar = frontLegs[dir][legIndex];
+                BackLeg[dir].ColorChar = backLegs[dir][legIndex];
             }
         }
 
         public override void Think()
         {
-            Direction curr = HitBox.LastMove;
+            Direction curr = AnimalHitBox.LastMove;
             int rnd = new Random().Next(101);
             int dirRnd;
             if (rnd < 5) dirRnd = 0;
@@ -105,7 +105,7 @@ namespace A
             else if (rnd < 25) dirRnd = 2;
             else dirRnd = 3;
 
-            switch (HitBox.LastMove)
+            switch (AnimalHitBox.LastMove)
             {
                 case Direction.None:
                     if (rnd < 25) curr = Direction.Up;
@@ -151,7 +151,7 @@ namespace A
                     break;
             }
 
-            HitBox.TryMove(curr);
+            AnimalHitBox.TryMove(curr);
         }
     }
 }

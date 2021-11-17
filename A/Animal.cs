@@ -52,73 +52,79 @@ namespace A
 
     abstract class Animal : FarmObject
     {
-        //¦ °
-        private readonly Wrapper<ColorChar> sexColorChar = new Wrapper<ColorChar>();
+        private readonly Square sexSquare;
         private Sex sex;
-        protected Directional2DArray<IReadOnlyWrapper<ColorChar>> Body { get; }
-        protected Dictionary<Direction, Wrapper<ColorChar>> Eyes { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
-        {
-            { Direction.Up, new Wrapper<ColorChar>() },
-            { Direction.Down, new Wrapper<ColorChar>() },
-            { Direction.Right, new Wrapper<ColorChar>() },
-            { Direction.Left, new Wrapper<ColorChar>() },
-        };
-        protected Dictionary<Direction, Wrapper<ColorChar>> Mouth { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
-        {
-            { Direction.Up, new Wrapper<ColorChar>() },
-            { Direction.Down, new Wrapper<ColorChar>() },
-            { Direction.Right, new Wrapper<ColorChar>() },
-            { Direction.Left, new Wrapper<ColorChar>() },
-        };
-        protected Dictionary<Direction, Wrapper<ColorChar>> FrontLeg { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
-        {
-            { Direction.Up, new Wrapper<ColorChar>() },
-            { Direction.Down, new Wrapper<ColorChar>() },
-            { Direction.Right, new Wrapper<ColorChar>() },
-            { Direction.Left, new Wrapper<ColorChar>() },
-        };
-        protected Dictionary<Direction, Wrapper<ColorChar>> BackLeg { get; } = new Dictionary<Direction, Wrapper<ColorChar>>()
-        {
-            { Direction.Up, new Wrapper<ColorChar>() },
-            { Direction.Down, new Wrapper<ColorChar>() },
-            { Direction.Right, new Wrapper<ColorChar>() },
-            { Direction.Left, new Wrapper<ColorChar>() },
-        };
-        public IReadOnlyDirectional2DArray<IReadOnlyWrapper<ColorChar>> ReadBody => Body;
-        public HitBox HitBox { get; }
+        protected Directional2DArray<IReadOnlySquare> Body { get; }
+        protected Dictionary<Direction, Square> Eyes { get; }
+        protected Dictionary<Direction, Square> Mouth { get; }
+        protected Dictionary<Direction, Square> FrontLeg { get; }
+        protected Dictionary<Direction, Square> BackLeg { get; }
+        protected AnimalHitBox AnimalHitBox { get; }
+        public override HitBox HitBox => AnimalHitBox;
+        public IReadOnlyDirectional2DArray<IReadOnlySquare> ReadBody => Body;
         public Sex Sex
         {
             get => sex;
             protected set
             {
                 sex = value;
-                sexColorChar.Value = value.ToColorChar();
+                sexSquare.ColorChar = value.ToColorChar();
             }
         }
-        public IReadOnlyWrapper<ColorChar> SexColorChar => sexColorChar;
+        public IReadOnlySquare SexColorChar => sexSquare;
         public string Name { get; }
-        
 
-        public Animal(string name, Sex sex, int x, int y)
+
+        public Animal(string name, Sex sex, int x, int y) : base(x, y)
         {
             Name = name;
+            sexSquare = new Square(this, sex.ToColorChar());
             Sex = sex;
 
-            Dictionary<Direction, IReadOnlyWrapper<ColorChar>[,]> directions = new Dictionary<Direction, IReadOnlyWrapper<ColorChar>[,]>();
+            Eyes = new Dictionary<Direction, Square>()
+            {
+                { Direction.Up, new Square(this, default) },
+                { Direction.Down, new Square(this, default) },
+                { Direction.Right, new Square(this, default) },
+                { Direction.Left, new Square(this, default) },
+            };
+            Mouth = new Dictionary<Direction, Square>()
+            {
+                { Direction.Up, new Square(this, default) },
+                { Direction.Down, new Square(this, default) },
+                { Direction.Right, new Square(this, default) },
+                { Direction.Left, new Square(this, default) },
+            };
+            FrontLeg = new Dictionary<Direction, Square>()
+            {
+                { Direction.Up, new Square(this, default) },
+                { Direction.Down, new Square(this, default) },
+                { Direction.Right, new Square(this, default) },
+                { Direction.Left, new Square(this, default) },
+            };
+            BackLeg = new Dictionary<Direction, Square>()
+            {
+                { Direction.Up, new Square(this, default) },
+                { Direction.Down, new Square(this, default) },
+                { Direction.Right, new Square(this, default) },
+                { Direction.Left, new Square(this, default) },
+            };
+
+            Dictionary<Direction, IReadOnlySquare[,]> directions = new Dictionary<Direction, IReadOnlySquare[,]>();
             foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
                 if (dir == Direction.None) continue;
-                directions[dir] = new IReadOnlyWrapper<ColorChar>[,]
+                directions[dir] = new IReadOnlySquare[,]
                 {
-                    { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Eyes[dir] },
-                    { new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Red, 'O') }, new Wrapper<ColorChar>() {Value = new ColorChar(ConsoleColor.Black, 'X') }, Mouth[dir] },
+                    { new Square(this, new ColorChar(ConsoleColor.Black, 'X')), new Square(this, new ColorChar(ConsoleColor.Black, 'X')), Eyes[dir] },
+                    { new Square(this, new ColorChar(ConsoleColor.Red, 'O')), new Square(this, new ColorChar(ConsoleColor.Black, 'X')), Mouth[dir] },
                     { BackLeg[dir], SexColorChar, FrontLeg[dir] }
                 };
             }
-            Body = new Directional2DArray<IReadOnlyWrapper<ColorChar>>(directions[Direction.Up], directions[Direction.Down], directions[Direction.Right], directions[Direction.Left]);
+            Body = new Directional2DArray<IReadOnlySquare>(directions[Direction.Up], directions[Direction.Down], directions[Direction.Right], directions[Direction.Left]);
 
-            HitBox = new HitBox(this, 3, x, y);
-            HitBox.OnMoveEvent += Animate;
+            AnimalHitBox = new AnimalHitBox(this, 3, x, y);
+            AnimalHitBox.OnMoveEvent += Animate;
         }
 
         public abstract void Think();
@@ -127,7 +133,7 @@ namespace A
         public void Flip()
         {
             Body.Flipped = !Body.Flipped;
-            HitBox.Update();
+            AnimalHitBox.Update();
         }
 
         public void SetDirection(Direction dir) => Body.Direction = dir;
