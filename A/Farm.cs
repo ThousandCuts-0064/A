@@ -40,16 +40,14 @@ namespace A
         public static AddAnimalError TryAddAnimal(Animal animal)
         {
             if (animals.ContainsKey(animal.Name)) return AddAnimalError.NameTaken;
-            if (animal.HitBox.X - animal.HitBox.Fat < 0 ||
-                animal.HitBox.Y - animal.HitBox.Fat < 0 ||
-                animal.HitBox.X + animal.HitBox.Fat > size - 1 ||
-                animal.HitBox.Y + animal.HitBox.Fat > size - 1)
+            if (animal.Body.X - animal.Body.Fat < 0 ||
+                animal.Body.Y - animal.Body.Fat < 0 ||
+                animal.Body.X + animal.Body.Fat > size - 1 ||
+                animal.Body.Y + animal.Body.Fat > size - 1)
                 return AddAnimalError.NoSpace;
 
             animals.Add(animal.Name, animal);
-            for (int i = 0; i < animal.HitBox.Size; i++)
-                for (int y = 0; y < animal.HitBox.Size; y++)
-                    Field[animal.HitBox.X - 1 + i, animal.HitBox.Y - 1 + y] = animal.ReadBody[i, y];
+            animal.Body.Update();
             return AddAnimalError.None;
         }
 

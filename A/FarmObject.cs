@@ -8,7 +8,7 @@ namespace A
 {
     abstract class FarmObject
     {
-        public abstract HitBox HitBox { get; }
+        public abstract Body Body { get; }
 
         public FarmObject(int x, int y)
         {

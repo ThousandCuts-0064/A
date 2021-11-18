@@ -6,20 +6,23 @@ using System.Threading.Tasks;
 
 namespace A
 {
-    abstract class HitBox
+    abstract class Body
     {
         public int X { get; protected set; }
         public int Y { get; protected set; }
         public int Size { get; }
         public int Fat { get; }
 
-        public HitBox(int size, int x, int y)
+        public Body(int size, int x, int y)
         {
             Size = size;
             Fat = (size - 1) / 2;
             X = x;
             Y = y;
         }
+
+        public abstract MoveError TryMove(Direction dir);
+        public abstract void Update();
 
         public MoveError TryMove(string dir)
         {
@@ -28,9 +31,7 @@ namespace A
             return TryMove(direction);
         }
 
-        public abstract MoveError TryMove(Direction dir);
-
-        public bool FreeSpace(Direction dir)
+        protected bool FreeSpace(Direction dir)
         {
             switch (dir)
             {
@@ -67,9 +68,9 @@ namespace A
         }
     }
 
-    class SimpleHitBox : HitBox
+    class StaticBody : Body
     {
-        public SimpleHitBox(int size, int x, int y) : base(size, x, y)
+        public StaticBody(int size, int x, int y) : base(size, x, y)
         {
 
         }
@@ -78,33 +79,47 @@ namespace A
         {
             throw new NotImplementedException();
         }
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    class AnimalHitBox : HitBox
+    class AnimalBody : Body
     {
+        private readonly Directional2DArray<IReadOnlySquare> dirArr;
         public delegate void OnMove();
         public event OnMove OnMoveEvent;
-        
         public Direction LastMove { get; protected set; } = Direction.Right;
         public Animal Animal { get; }
-        public AnimalHitBox(Animal animal, int size, int x, int y) : base(size, x, y)
+        public AnimalBody(Animal animal, Dictionary<Direction, IReadOnlySquare[,]> DirDic, int size, int x, int y) : base(size, x, y)
         {
+            dirArr = new Directional2DArray<IReadOnlySquare>(DirDic);
             Animal = animal;
         }
 
-        public void Update()
+        public override void Update()
         {
             for (int i = 0; i < Size; i++)
                 for (int j = 0; j < Size; j++)
-                    Farm.Field[X - Fat + i, Y - Fat + j] = Animal.ReadBody[i, j];
+                    Farm.Field[X - Fat + i, Y - Fat + j] = dirArr[i, j];
         }
+
+        public void Flip()
+        {
+            dirArr.Flipped = !dirArr.Flipped;
+            Update();
+        }
+
+        public void SetDirection(Direction dir) => dirArr.Direction = dir;
 
         public override MoveError TryMove(Direction dir)
         {
             if (LastMove != dir && dir != Direction.None)
             {
                 LastMove = dir;
-                Animal.SetDirection(LastMove);
+                dirArr.Direction = LastMove;
                 Update();
                 return MoveError.None;
             }
@@ -115,44 +130,10 @@ namespace A
                 return MoveError.Blocked;
             }
 
-            switch (dir)
-            {
-                case Direction.None: return MoveError.None;
-
-                case Direction.Up:
-                    LastMove = Direction.Up;
-                    Animal.SetDirection(LastMove);
-                    Move(dir);
-                    X -= 1;
-                    return MoveError.None;
-
-                case Direction.Down:
-                    LastMove = Direction.Down;
-                    Animal.SetDirection(LastMove);
-                    Move(dir);
-                    X += 1;
-                    return MoveError.None;
-
-
-                case Direction.Right:
-                    LastMove = Direction.Right;
-                    Animal.SetDirection(LastMove);
-                    Move(dir);
-                    Y += 1;
-                    return MoveError.None;
-
-
-                case Direction.Left:
-                    LastMove = Direction.Left;
-                    Animal.SetDirection(LastMove);
-                    Move(dir);
-                    Y -= 1;
-                    return MoveError.Blocked;
-
-                default:
-                    LastMove = Direction.None;
-                    return MoveError.Invalid;
-            }
+            LastMove = dir;
+            dirArr.Direction = LastMove;
+            Move(dir);
+            return MoveError.None;
         }
 
         private void Move(Direction dir)
@@ -164,36 +145,40 @@ namespace A
                     for (int i = 0; i < Size; i++)
                     {
                         for (int j = 0; j < Size; j++)
-                            Farm.Field[X - Fat + j - 1, Y - Fat + i] = Animal.ReadBody[j, i];
+                            Farm.Field[X - Fat + j - 1, Y - Fat + i] = dirArr[j, i];
                         Farm.Field[X + Fat, Y - Fat + i] = Farm.Empty;
                     }
+                    X -= 1;
                     break;
 
                 case Direction.Down:
                     for (int i = 0; i < Size; i++)
                     {
                         for (int j = 0; j < Size; j++)
-                            Farm.Field[X + Fat - j + 1, Y - Fat + i] = Animal.ReadBody[Size - Fat - j, i];
+                            Farm.Field[X + Fat - j + 1, Y - Fat + i] = dirArr[Size - Fat - j, i];
                         Farm.Field[X - Fat, Y - Fat + i] = Farm.Empty;
                     }
+                    X += 1;
                     break;
 
                 case Direction.Right:
                     for (int i = 0; i < Size; i++)
                     {
                         for (int j = 0; j < Size; j++)
-                            Farm.Field[X - Fat + i, Y + Fat - j + 1] = Animal.ReadBody[i, Size - Fat - j];
+                            Farm.Field[X - Fat + i, Y + Fat - j + 1] = dirArr[i, Size - Fat - j];
                         Farm.Field[X - Fat + i, Y - Fat] = Farm.Empty;
                     }
+                    Y += 1;
                     break;
 
                 case Direction.Left:
                     for (int i = 0; i < Size; i++)
                     {
                         for (int j = 0; j < Size; j++)
-                            Farm.Field[X - Fat + i, Y - Fat + j - 1] = Animal.ReadBody[i, j];
+                            Farm.Field[X - Fat + i, Y - Fat + j - 1] = dirArr[i, j];
                         Farm.Field[X - Fat + i, Y + Fat] = Farm.Empty;
                     }
+                    Y -= 1;
                     break;
             }
         }

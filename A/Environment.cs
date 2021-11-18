@@ -8,11 +8,11 @@ namespace A
 {
     abstract class Environment : FarmObject
     {
-        protected SimpleHitBox SimpleHitBox { get; }
-        public override HitBox HitBox => SimpleHitBox;
+        protected StaticBody StaticBody { get; }
+        public override Body Body => StaticBody;
         protected Environment(int x, int y) : base(x, y)
         {
-            SimpleHitBox = new SimpleHitBox(1, x, y);
+            StaticBody = new StaticBody(1, x, y);
         }
     }
 }

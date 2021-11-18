@@ -97,7 +97,7 @@ namespace A
 
         public override void Think()
         {
-            Direction curr = AnimalHitBox.LastMove;
+            Direction curr = AnimalBody.LastMove;
             int rnd = new Random().Next(101);
             int dirRnd;
             if (rnd < 5) dirRnd = 0;
@@ -105,7 +105,7 @@ namespace A
             else if (rnd < 25) dirRnd = 2;
             else dirRnd = 3;
 
-            switch (AnimalHitBox.LastMove)
+            switch (AnimalBody.LastMove)
             {
                 case Direction.None:
                     if (rnd < 25) curr = Direction.Up;
@@ -151,7 +151,7 @@ namespace A
                     break;
             }
 
-            AnimalHitBox.TryMove(curr);
+            AnimalBody.TryMove(curr);
         }
     }
 }

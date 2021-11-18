@@ -54,7 +54,7 @@
     <Compile Include="Grass.cs" />
     <Compile Include="Square.cs" />
     <Compile Include="Directional2DArray.cs" />
-    <Compile Include="HitBox.cs" />
+    <Compile Include="Body.cs" />
     <Compile Include="Farm.cs" />
     <Compile Include="Cow.cs" />
     <Compile Include="Program.cs" />

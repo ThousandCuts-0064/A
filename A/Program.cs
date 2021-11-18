@@ -84,13 +84,13 @@ namespace A
                         {
                             if (comand[0] == "Mode" && Enum.TryParse(comand[1], out InputMode inputMode)) InputMode = inputMode;
                             else if (comand[0] == "Deselect") Select = null;
-                            else if (comand[0] == "Flip") Select.Flip();
-                            else if (Select.HitBox.TryMove(comand[0]) != MoveError.Invalid) continue;
+                            else if (comand[0] == "Flip") Select.AnimalBody.Flip();
+                            else if (Select.Body.TryMove(comand[0]) != MoveError.Invalid) continue;
                         }
                         else if (Farm.TryGetAnimal(comand[0], out Animal tryAnimal))
                         {
-                            if (comand[1] == "Flip") tryAnimal.Flip();
-                            else if (tryAnimal.HitBox.TryMove(comand[1]) != MoveError.Invalid) continue;
+                            if (comand[1] == "Flip") tryAnimal.AnimalBody.Flip();
+                            else if (tryAnimal.Body.TryMove(comand[1]) != MoveError.Invalid) continue;
                         }
                         break;
 
@@ -101,23 +101,23 @@ namespace A
                         switch (key.Key)
                         {
                             case ConsoleKey.W:
-                                Select.HitBox.TryMove(Direction.Up);
+                                Select.Body.TryMove(Direction.Up);
                                 break;
 
                             case ConsoleKey.A:
-                                Select.HitBox.TryMove(Direction.Left);
+                                Select.Body.TryMove(Direction.Left);
                                 break;
 
                             case ConsoleKey.S:
-                                Select.HitBox.TryMove(Direction.Down);
+                                Select.Body.TryMove(Direction.Down);
                                 break;
 
                             case ConsoleKey.D:
-                                Select.HitBox.TryMove(Direction.Right);
+                                Select.Body.TryMove(Direction.Right);
                                 break;
 
                             case ConsoleKey.F:
-                                Select.Flip();
+                                Select.AnimalBody.Flip();
                                 break;
 
                             case ConsoleKey.Escape:

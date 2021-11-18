@@ -14,9 +14,10 @@ namespace A
         int SizeY { get; }
         bool Flipped { get; }
     }
+
     class Directional2DArray<T> : IReadOnlyDirectional2DArray<T>
     {
-        private readonly Dictionary<Direction, T[,]> arrays;
+        private readonly Dictionary<Direction, T[,]> dirToArr;
         public Direction Direction { get; set; } = Direction.Right;
         public int SizeX { get; }
         public int SizeY { get; }
@@ -28,36 +29,30 @@ namespace A
                 if (Flipped)
                     switch (Direction)
                     {
-                        case Direction.Up: return arrays[Direction.Right][SizeY - 1 - y, SizeX - 1 - i];
-                        case Direction.Down: return arrays[Direction.Right][SizeY - 1 - y, i];
-                        case Direction.Right: return arrays[Direction.Down][SizeX - 1 - i, y];
-                        case Direction.Left: return arrays[Direction.Down][SizeX - 1 - i, SizeY - 1 - y];
+                        case Direction.Up: return dirToArr[Direction.Right][SizeY - 1 - y, SizeX - 1 - i];
+                        case Direction.Down: return dirToArr[Direction.Right][SizeY - 1 - y, i];
+                        case Direction.Right: return dirToArr[Direction.Down][SizeX - 1 - i, y];
+                        case Direction.Left: return dirToArr[Direction.Down][SizeX - 1 - i, SizeY - 1 - y];
                         default: throw new Exception();
                     }
                 else
                     switch (Direction)
                     {
-                        case Direction.Up: return arrays[Direction.Left][y, SizeX - 1 - i];
-                        case Direction.Down: return arrays[Direction.Left][y, i];
-                        case Direction.Right: return arrays[Direction.Up][i, y];
-                        case Direction.Left: return arrays[Direction.Up][i, SizeY - 1 - y];
+                        case Direction.Up: return dirToArr[Direction.Left][y, SizeX - 1 - i];
+                        case Direction.Down: return dirToArr[Direction.Left][y, i];
+                        case Direction.Right: return dirToArr[Direction.Up][i, y];
+                        case Direction.Left: return dirToArr[Direction.Up][i, SizeY - 1 - y];
                         default: throw new Exception();
                     }
             }
-            set => arrays[Direction.Up][i, y] = value;
+            set => dirToArr[Direction.Up][i, y] = value;
         }
 
-        public Directional2DArray(T[,] up, T[,] down, T[,] right, T[,] left)
+        public Directional2DArray(Dictionary<Direction, T[,]> pairs)
         {
-            arrays = new Dictionary<Direction, T[,]>()
-            {
-                { Direction.Up, up },
-                { Direction.Down, down },
-                { Direction.Right, right },
-                { Direction.Left, left },
-            };
-            SizeX = up.GetLength(0);
-            SizeY = up.GetLength(1);
+            dirToArr = pairs;
+            SizeX = pairs[Direction.Up].GetLength(0);
+            SizeY = pairs[Direction.Up].GetLength(1);
         }
     }
 }

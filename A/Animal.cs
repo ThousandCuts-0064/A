@@ -54,14 +54,12 @@ namespace A
     {
         private readonly Square sexSquare;
         private Sex sex;
-        protected Directional2DArray<IReadOnlySquare> Body { get; }
         protected Dictionary<Direction, Square> Eyes { get; }
         protected Dictionary<Direction, Square> Mouth { get; }
         protected Dictionary<Direction, Square> FrontLeg { get; }
         protected Dictionary<Direction, Square> BackLeg { get; }
-        protected AnimalHitBox AnimalHitBox { get; }
-        public override HitBox HitBox => AnimalHitBox;
-        public IReadOnlyDirectional2DArray<IReadOnlySquare> ReadBody => Body;
+        public AnimalBody AnimalBody { get; }
+        public override Body Body => AnimalBody;
         public Sex Sex
         {
             get => sex;
@@ -121,21 +119,12 @@ namespace A
                     { BackLeg[dir], SexColorChar, FrontLeg[dir] }
                 };
             }
-            Body = new Directional2DArray<IReadOnlySquare>(directions[Direction.Up], directions[Direction.Down], directions[Direction.Right], directions[Direction.Left]);
 
-            AnimalHitBox = new AnimalHitBox(this, 3, x, y);
-            AnimalHitBox.OnMoveEvent += Animate;
+            AnimalBody = new AnimalBody(this, directions, 3, x, y);
+            AnimalBody.OnMoveEvent += Animate;
         }
 
         public abstract void Think();
         public abstract void Animate();
-
-        public void Flip()
-        {
-            Body.Flipped = !Body.Flipped;
-            AnimalHitBox.Update();
-        }
-
-        public void SetDirection(Direction dir) => Body.Direction = dir;
     }
 }
